@@ -17,7 +17,7 @@ from urllib.error import HTTPError
 from urllib.request import ProxyHandler, Request, build_opener
 
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 MODEL = "gpt-5.4"
 OPENER = build_opener(ProxyHandler({}))
 
@@ -431,8 +431,8 @@ def check_legacy_credentials(sidecar, data):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--sidecar", type=Path, default=ROOT / "cc-switch/src-tauri/target/release/cc-switch-sidecar.exe")
-    parser.add_argument("--codex", type=Path, default=ROOT / "codex/codex-rs/target/x86_64-pc-windows-msvc/release/codex.exe")
+    parser.add_argument("--sidecar", type=Path, default=ROOT / "src/cc-switch/src-tauri/target/release/cc-switch-sidecar.exe")
+    parser.add_argument("--codex", type=Path, default=ROOT / "src/codex/codex-rs/target/x86_64-pc-windows-msvc/release/codex.exe")
     parser.add_argument("--gateway-only", action="store_true")
     args = parser.parse_args()
     runs = ROOT / ".local" / "smoke"

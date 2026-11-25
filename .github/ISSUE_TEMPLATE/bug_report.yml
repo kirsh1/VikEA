@@ -1,0 +1,22 @@
+name: 问题反馈
+description: 报告 VikEA 的安装、构建或运行问题
+body:
+  - type: input
+    id: version
+    attributes:
+      label: VikEA 版本和系统版本
+      placeholder: VikEA 0.1.17，Windows 11 x64
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 复现步骤
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: 预期结果和实际结果
+    validations:
+      required: true

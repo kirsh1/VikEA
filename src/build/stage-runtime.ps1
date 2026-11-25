@@ -1,5 +1,5 @@
 param(
-    [string] $ResourcesPath = (Join-Path $PSScriptRoot '../.local/resources')
+    [string] $ResourcesPath = (Join-Path $PSScriptRoot '../../.local/resources')
 )
 
 $ErrorActionPreference = 'Stop'
@@ -26,13 +26,7 @@ Copy-Item -LiteralPath (Join-Path $workspace 'codex/LICENSE') -Destination (Join
 Copy-Item -LiteralPath (Join-Path $workspace 'codex/NOTICE') -Destination (Join-Path $ResourcesPath 'codex/NOTICE.txt') -Force
 Copy-Item -LiteralPath (Join-Path $workspace 'cc-switch/LICENSE') -Destination (Join-Path $ResourcesPath 'cc-switch/LICENSE.txt') -Force
 
-$codexSourcePath = Join-Path $workspace 'codex'
-if (Test-Path -LiteralPath (Join-Path $codexSourcePath '.git')) {
-    $revision = git -C $codexSourcePath rev-parse HEAD
-    if ($LASTEXITCODE -ne 0) { throw 'Cannot identify the Codex repository revision' }
-} else {
-    $revision = (Get-Content -LiteralPath (Join-Path $codexSourcePath 'SOURCE_REVISION') -Raw).Trim()
-}
+$revision = (Get-Content -LiteralPath (Join-Path $workspace 'codex/SOURCE_REVISION') -Raw).Trim()
 if ($revision -notmatch '^[0-9a-f]{40}$') { throw 'Cannot identify the Codex snapshot' }
 [ordered]@{ layoutVersion = 1; entrypoint = 'codex.exe'; version = '0.0.0'; sourceRevision = $revision } |
     ConvertTo-Json | Set-Content -LiteralPath (Join-Path $ResourcesPath 'codex/codex-package.json') -Encoding utf8NoBOM

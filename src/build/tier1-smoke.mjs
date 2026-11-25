@@ -8,7 +8,7 @@ import { setTimeout as sleep } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
 import assert from "node:assert/strict";
 
-const root = fileURLToPath(new URL("../", import.meta.url));
+const root = fileURLToPath(new URL("../../", import.meta.url));
 const runs = join(root, ".local", "smoke");
 await mkdir(runs, { recursive: true });
 const data = await mkdtemp(join(runs, "t3-"));
@@ -22,18 +22,19 @@ const baseUrl = `http://127.0.0.1:${port}`;
 
 const packaged = process.argv[2];
 const executable = packaged ? join(packaged, "VikEA.exe") : process.execPath;
-const resources = packaged ? join(packaged, "resources") : join(root, ".local", "resources");
-const entry = packaged ? join(resources, "server.asar", "apps", "server", "dist", "bin.mjs") : "src/bin.ts";
+const entry = packaged
+  ? join(packaged, "resources", "server.asar", "apps", "server", "dist", "bin.mjs")
+  : "src/bin.ts";
 
 const child = spawn(executable, [entry, "--no-browser"], {
-  cwd: join(root, "t3code", "apps", "server"),
+  cwd: join(root, "src", "t3code", "apps", "server"),
   windowsHide: true,
   env: {
     ...process.env,
     T3CCSW_HOME: home,
     T3CODE_HOME: legacyHome,
-    // In the packaged case exercise Electron's resource lookup as well as the source override.
-    T3CCSW_RESOURCES: packaged ? undefined : resources,
+    // Both the source tree and the packaged server must find their staged runtime resources.
+    T3CCSW_RESOURCES: undefined,
     ...(packaged ? { ELECTRON_RUN_AS_NODE: "1" } : {}),
     T3CCSW_PORT: String(port),
     OPENAI_API_KEY: "unused-fixture-host-key",

@@ -2830,7 +2830,7 @@ export const createBuildConfig = Effect.fn("createBuildConfig")(function* (
   arch?: typeof BuildArch.Type,
 ) {
   const updateChannel = resolveDesktopUpdateChannel(version);
-  const resourcePath = (yield* Path.Path).resolve(yield* RepoRoot, "../.local/resources");
+  const resourcePath = (yield* Path.Path).resolve(yield* RepoRoot, "../../.local/resources");
   const buildConfig: Record<string, unknown> = {
     // Windows uses its normal per-install compile cache to keep the NSIS payload under the file limit.
     ...(platform === "win"

@@ -1,9 +1,9 @@
 // @effect-diagnostics nodeBuiltinImport:off
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { createHash, randomBytes } from "node:crypto";
-import { createReadStream } from "node:fs";
+import { createReadStream, existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { createInterface } from "node:readline";
 import { fileURLToPath } from "node:url";
 import * as HostProcess from "@t3tools/shared/HostProcess";
@@ -170,6 +170,19 @@ async function verifyRuntimeAssets(resources: string, artifacts: ReadonlyArray<s
   );
 }
 
+function workspaceResourceDirectory(): string {
+  let directory = dirname(fileURLToPath(import.meta.url));
+  while (dirname(directory) !== directory) {
+    if (existsSync(join(directory, "src", "build", "stage-runtime.ps1"))) {
+      return join(directory, ".local", "resources");
+    }
+    directory = dirname(directory);
+  }
+  throw new Error(
+    "Cannot locate VikEA runtime resources. Set T3CCSW_RESOURCES to the staged resource directory.",
+  );
+}
+
 const make = Effect.fn("CcSwitchSidecar.make")(function* () {
   const config = yield* ServerConfig;
   const environment = yield* HostProcess.Environment;
@@ -178,9 +191,7 @@ const make = Effect.fn("CcSwitchSidecar.make")(function* () {
       ? process.resourcesPath
       : undefined;
   const resources =
-    environment.T3CCSW_RESOURCES?.trim() ||
-    electronResources ||
-    fileURLToPath(new URL("../../../../../.local/resources", import.meta.url));
+    environment.T3CCSW_RESOURCES?.trim() || electronResources || workspaceResourceDirectory();
   const sidecarBinary = resolve(resources, "cc-switch", "cc-switch-sidecar.exe");
   const codexBinary = resolve(resources, "codex", "codex.exe");
   const codexHome = join(config.baseDir, "codex-home");

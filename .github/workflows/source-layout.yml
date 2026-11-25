@@ -1,0 +1,20 @@
+name: Source layout
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check-layout:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Validate layout, build scripts, and links
+        shell: pwsh
+        run: ./src/build/check-layout.ps1

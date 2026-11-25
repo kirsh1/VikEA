@@ -10,10 +10,10 @@ VikEA runs local coding agents from a desktop interface. The Windows build inclu
 
 ## Windows build
 
-Use the project workspace with the sibling Codex and CC Switch source directories. See the [project README](../README.md) for the toolchain and runtime build commands. Stage both runtime binaries from the workspace root with `./scripts/stage-runtime.ps1`, then run the desktop build from this directory.
+Run the integrated build from the VikEA repository root. See the [project README](../../README.md) for the toolchain and runtime build commands.
 
 ```powershell
-node scripts/build-desktop-artifact.ts --platform win --target nsis --arch x64 --build-version 0.1.17 --output-dir ../.local/dist-vikea
+npm run build
 ```
 
 Configure the gateway under **Settings → Providers → CC Switch**. Sign in to native Codex under **Settings → Providers → Codex**. Each runtime uses its own state directory.

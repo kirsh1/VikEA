@@ -1,0 +1,16 @@
+{
+  "name": "vikea",
+  "version": "0.1.17",
+  "private": true,
+  "engines": {
+    "node": "26.13.1"
+  },
+  "scripts": {
+    "build": "pwsh -NoLogo -NoProfile -File src/build/build-windows.ps1",
+    "package:windows": "pwsh -NoLogo -NoProfile -File src/build/build-windows.ps1 -UseExistingRuntimes",
+    "stage:runtime": "pwsh -NoLogo -NoProfile -File src/build/stage-runtime.ps1",
+    "check:layout": "pwsh -NoLogo -NoProfile -File src/build/check-layout.ps1",
+    "test:gateway": "python src/build/tier23-smoke.py",
+    "test:desktop": "node src/build/tier1-smoke.mjs"
+  }
+}

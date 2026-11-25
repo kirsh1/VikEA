@@ -1,6 +1,6 @@
 # VikEA
 
-VikEA 是一个桌面编码代理工作区。Windows 版内置原生 Codex 和 CC Switch 网关，可以在同一个对话模型选择器中切换原生 Codex 与自定义 API 模型。
+VikEA 是一个桌面编码代理工作区，集成了 **T3 Code、CC Switch 和 OpenAI Codex**。T3 Code 提供工作区界面和本地服务，CC Switch 提供供应商配置与 API 协议网关，OpenAI Codex 作为内置编码代理运行。Windows 版可在同一个对话模型选择器中切换原生 Codex 与自定义 API 模型。
 
 ## 功能
 
@@ -18,36 +18,22 @@ VikEA 是一个桌面编码代理工作区。Windows 版内置原生 Codex 和 C
 
 ## 配置与构建流程
 
-桌面界面连接本地服务，服务启动内置 Codex。选择 CC Switch 模型时，Codex 通过本机网关请求所配置的上游 API。三个源码目录是 `t3code/`（桌面、Web、移动端和服务端）、`cc-switch/`（API 网关）和 `codex/`（代理运行时）。
+三个模块位于 [`src/t3code`](src/t3code)、[`src/cc-switch`](src/cc-switch) 和 [`src/codex`](src/codex)。项目级构建脚本位于 [`src/build`](src/build)。桌面界面连接本地服务。使用 CC Switch 模型时，Codex 通过本机网关请求所配置的上游 API。 [架构说明](docs/architecture.md)
 
-在加载了 MSVC x64 环境的 PowerShell 7 中，从仓库根目录执行以下命令。需要能下载依赖和构建工具。
+在加载了 MSVC x64 环境的 PowerShell 7 中，从仓库根目录执行统一构建入口。首次构建需要下载依赖和构建工具。
 
-1. 构建 Codex。
+```powershell
+npm run build
+```
 
-   ```powershell
-   Push-Location ./codex/codex-rs
-   rustup target add x86_64-pc-windows-msvc
-   cargo build --locked --release --target x86_64-pc-windows-msvc -p codex-cli --bin codex
-   Pop-Location
-   ```
+构建会依次编译 Codex 和 CC Switch 网关、暂存运行时并生成校验清单、安装界面依赖以及生成 Windows NSIS 安装包。
 
-2. 构建 CC Switch 的无界面网关。
-
-   ```powershell
-   Push-Location ./cc-switch/src-tauri
-   cargo build --locked --release --features sidecar-only --bin cc-switch-sidecar
-   Pop-Location
-   ```
-
-3. 准备内置运行时并打包。
-
-   ```powershell
-   ./scripts/stage-runtime.ps1
-   Push-Location ./t3code
-   pnpm install --frozen-lockfile
-   pnpm exec node scripts/build-desktop-artifact.ts --platform win --target nsis --arch x64 --build-version 0.1.17 --output-dir ../.local/dist-vikea
-   Pop-Location
-   ```
+| 命令 | 用途 |
+| --- | --- |
+| `npm run build` | 从源码构建运行时并打包 |
+| `npm run package:windows` | 使用已有的 Codex 和 CC Switch Release 二进制打包 |
+| `npm run stage:runtime` | 暂存二进制及许可文件，并生成 SHA-256 校验清单 |
+| `npm run check:layout` | 检查模块布局、PowerShell 脚本语法和文档链接 |
 
 安装包生成在 `.local/dist-vikea/VikEA-0.1.17-x64.exe`。运行时准备脚本将两个可执行文件、许可和 SHA-256 清单写入 `.local/resources/`。
 
@@ -67,10 +53,10 @@ VikEA 是一个桌面编码代理工作区。Windows 版内置原生 Codex 和 C
 
 | 项目 | 用途与许可 |
 | --- | --- |
-| [T3 Code](https://github.com/pingdotgg/t3code) | 工作区界面和服务端基础，[MIT 许可](t3code/LICENSE) |
-| [CC Switch](https://github.com/farion1231/cc-switch) | 供应商配置、协议转换和网关，[MIT 许可](cc-switch/LICENSE) |
-| [OpenAI Codex](https://github.com/openai/codex) | 随 Windows 版内置的本地编码代理，[Apache-2.0 许可](codex/LICENSE)及 [NOTICE](codex/NOTICE) |
+| [T3 Code](https://github.com/pingdotgg/t3code) | 工作区界面和服务端基础，[MIT 许可](src/t3code/LICENSE) |
+| [CC Switch](https://github.com/farion1231/cc-switch) | 供应商配置、协议转换和网关，[MIT 许可](src/cc-switch/LICENSE) |
+| [OpenAI Codex](https://github.com/openai/codex) | 随 Windows 版内置的本地编码代理，[Apache-2.0 许可](src/codex/LICENSE)及 [NOTICE](src/codex/NOTICE) |
 
-感谢三个上游项目及其贡献者。VikEA 是独立维护的非官方衍生项目，品牌归属见 [TRADEMARK.md](t3code/TRADEMARK.md)。
+感谢三个上游项目及其贡献者。VikEA 是独立维护的非官方衍生项目。 [许可证说明](LICENSE) · [商标归属](src/t3code/TRADEMARK.md)
 
 感谢 [Codex](https://github.com/codex) 协助实现和验证 VikEA 的 CC Switch 集成。
