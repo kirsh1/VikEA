@@ -1,0 +1,19 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { localeStaticPaths, localizedHref } from "../../i18n/locales";
+import { softwareJsonLd } from "../../lib/seo";
+
+export const getStaticPaths = localeStaticPaths;
+
+const { locale } = Astro.props;
+const isChinese = locale === "zh-Hans";
+const description = isChinese
+  ? "在同一个桌面工作区里使用原生 Codex 和 CC Switch 配置的模型。"
+  : "Use native Codex and models configured through CC Switch in one desktop workspace.";
+---
+
+<Layout title="VikEA" description={description} locale={locale} localizedPath="/" jsonLd={[softwareJsonLd(description)]}>
+  <h1>VikEA</h1>
+  <p>{description}</p>
+  <a class="download" href={localizedHref(locale, "/download")}>{isChinese ? "查看下载" : "View downloads"}</a>
+</Layout>

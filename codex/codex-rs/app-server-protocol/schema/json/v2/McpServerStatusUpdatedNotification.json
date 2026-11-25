@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "McpServerStartupFailureReason": {
+      "enum": [
+        "reauthenticationRequired"
+      ],
+      "type": "string"
+    },
+    "McpServerStartupState": {
+      "enum": [
+        "starting",
+        "ready",
+        "failed",
+        "cancelled"
+      ],
+      "type": "string"
+    }
+  },
+  "properties": {
+    "durationMs": {
+      "description": "Elapsed startup time for a measured attempt. Older servers omit this field.",
+      "format": "uint64",
+      "minimum": 0.0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "environmentId": {
+      "description": "Registration scope, not necessarily the server's execution environment.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "error": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "failureReason": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/McpServerStartupFailureReason"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "name": {
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/definitions/McpServerStartupState"
+    },
+    "threadId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "name",
+    "status"
+  ],
+  "title": "McpServerStatusUpdatedNotification",
+  "type": "object"
+}

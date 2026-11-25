@@ -1,0 +1,279 @@
+import { renderHook, act, waitFor } from "@testing-library/react";
+import { useLayoutEffect } from "react";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import i18n from "i18next";
+import { useSettingsForm } from "@/hooks/useSettingsForm";
+
+const useSettingsQueryMock = vi.fn();
+
+vi.mock("@/lib/query", () => ({
+  useSettingsQuery: (...args: unknown[]) => useSettingsQueryMock(...args),
+}));
+
+let changeLanguageSpy: ReturnType<typeof vi.spyOn<any, any>>;
+
+beforeEach(() => {
+  useSettingsQueryMock.mockReset();
+  window.localStorage.clear();
+  (i18n as any).language = "zh";
+  changeLanguageSpy = vi
+    .spyOn(i18n, "changeLanguage")
+    .mockImplementation(async (lang?: string) => {
+      (i18n as any).language = lang;
+      return i18n.t;
+    });
+});
+
+afterEach(() => {
+  changeLanguageSpy.mockRestore();
+});
+
+describe("useSettingsForm Hook", () => {
+  it("ignores an unsupported cached language sharing the Chinese prefix", () => {
+    useSettingsQueryMock.mockReturnValue({ data: null, isLoading: false });
+    window.localStorage.setItem("language", "zha");
+    (i18n as any).language = "en";
+    const { result } = renderHook(() => useSettingsForm());
+    expect(result.current.readPersistedLanguage()).toBe("en");
+  });
+
+  it.each([
+    ["zh-TW-u-nu-hanidec", "zh-TW"],
+    ["zh-Hant-TW", "zh-TW"],
+    ["zh-hantx", "zh"],
+    ["zh-hkx", "zh"],
+  ])("normalizes the Chinese tag %s to %s", (language, expected) => {
+    useSettingsQueryMock.mockReturnValue({ data: null, isLoading: false });
+    window.localStorage.setItem("language", language);
+    const { result } = renderHook(() => useSettingsForm());
+    expect(result.current.readPersistedLanguage()).toBe(expected);
+  });
+
+  it("renders normalized cached settings on the first commit", () => {
+    useSettingsQueryMock.mockReturnValue({
+      data: {
+        showInTray: undefined,
+        minimizeToTrayOnClose: undefined,
+        enableClaudePluginIntegration: undefined,
+        claudeConfigDir: "  /Users/demo  ",
+        codexConfigDir: "   ",
+        language: "en",
+      },
+      isLoading: false,
+    });
+
+    const onCommit = vi.fn();
+    renderHook(() => {
+      const { settings, initialLanguage } = useSettingsForm();
+      useLayoutEffect(() => {
+        onCommit(settings, initialLanguage);
+      }, [settings, initialLanguage]);
+    });
+
+    expect(onCommit).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        showInTray: true,
+        minimizeToTrayOnClose: true,
+        enableClaudePluginIntegration: false,
+        claudeConfigDir: "/Users/demo",
+        codexConfigDir: undefined,
+        language: "en",
+      }),
+      "en",
+    );
+    expect(changeLanguageSpy).toHaveBeenCalledWith("en");
+  });
+
+  it("waits for the query when the settings cache is empty", () => {
+    useSettingsQueryMock.mockReturnValue({ data: undefined, isLoading: true });
+    const { result, rerender } = renderHook(() => useSettingsForm());
+    expect(result.current.isLoading).toBe(true);
+    expect(result.current.settings).toBeNull();
+
+    useSettingsQueryMock.mockReturnValue({
+      data: { showInTray: false, language: "en" },
+      isLoading: false,
+    });
+    rerender();
+    expect(result.current.isLoading).toBe(false);
+    expect(result.current.settings).toMatchObject({
+      showInTray: false,
+      language: "en",
+    });
+  });
+
+  it.each(["tr", "ko", "ru", "de"])(
+    "preserves %s from server settings",
+    async (language) => {
+      useSettingsQueryMock.mockReturnValue({
+        data: { language },
+        isLoading: false,
+      });
+      const { result } = renderHook(() => useSettingsForm());
+      await waitFor(() =>
+        expect(result.current.settings?.language).toBe(language),
+      );
+      expect(result.current.initialLanguage).toBe(language);
+      expect(changeLanguageSpy).toHaveBeenCalledWith(language);
+    },
+  );
+
+  it("should support japanese language preference from server data", async () => {
+    useSettingsQueryMock.mockReturnValue({
+      data: {
+        showInTray: true,
+        minimizeToTrayOnClose: true,
+        enableClaudePluginIntegration: false,
+        claudeConfigDir: "/Users/demo",
+        codexConfigDir: null,
+        language: "ja",
+      },
+      isLoading: false,
+    });
+
+    const { result } = renderHook(() => useSettingsForm());
+
+    await waitFor(() => {
+      expect(result.current.settings?.language).toBe("ja");
+    });
+
+    expect(result.current.initialLanguage).toBe("ja");
+    expect(changeLanguageSpy).toHaveBeenCalledWith("ja");
+  });
+
+  it("should support traditional chinese language preference aliases", async () => {
+    useSettingsQueryMock.mockReturnValue({
+      data: {
+        showInTray: true,
+        minimizeToTrayOnClose: true,
+        enableClaudePluginIntegration: false,
+        claudeConfigDir: "/Users/demo",
+        codexConfigDir: null,
+        language: "zh-Hant",
+      },
+      isLoading: false,
+    });
+
+    const { result } = renderHook(() => useSettingsForm());
+
+    await waitFor(() => {
+      expect(result.current.settings?.language).toBe("zh-TW");
+    });
+
+    expect(result.current.initialLanguage).toBe("zh-TW");
+    expect(changeLanguageSpy).toHaveBeenCalledWith("zh-TW");
+  });
+
+  it("should prioritize reading language from local storage in readPersistedLanguage", () => {
+    useSettingsQueryMock.mockReturnValue({
+      data: null,
+      isLoading: false,
+    });
+    window.localStorage.setItem("language", "en");
+
+    const { result } = renderHook(() => useSettingsForm());
+
+    const lang = result.current.readPersistedLanguage();
+    expect(lang).toBe("en");
+    expect(changeLanguageSpy).not.toHaveBeenCalled();
+  });
+
+  it("should update fields and sync language when language changes in updateSettings", () => {
+    useSettingsQueryMock.mockReturnValue({
+      data: null,
+      isLoading: false,
+    });
+
+    const { result } = renderHook(() => useSettingsForm());
+
+    act(() => {
+      result.current.updateSettings({ showInTray: false });
+    });
+
+    expect(result.current.settings?.showInTray).toBe(false);
+
+    changeLanguageSpy.mockClear();
+    act(() => {
+      result.current.updateSettings({ language: "en" });
+    });
+
+    expect(result.current.settings?.language).toBe("en");
+    expect(changeLanguageSpy).toHaveBeenCalledWith("en");
+  });
+
+  it("should reset with server data and restore initial language in resetSettings", async () => {
+    useSettingsQueryMock.mockReturnValue({
+      data: {
+        showInTray: true,
+        minimizeToTrayOnClose: true,
+        enableClaudePluginIntegration: false,
+        claudeConfigDir: "/origin",
+        codexConfigDir: null,
+        language: "en",
+      },
+      isLoading: false,
+    });
+
+    const { result } = renderHook(() => useSettingsForm());
+
+    await waitFor(() => {
+      expect(result.current.settings).not.toBeNull();
+    });
+
+    changeLanguageSpy.mockClear();
+    (i18n as any).language = "zh";
+
+    act(() => {
+      result.current.resetSettings({
+        showInTray: false,
+        minimizeToTrayOnClose: false,
+        enableClaudePluginIntegration: true,
+        claudeConfigDir: "  /reset  ",
+        codexConfigDir: "   ",
+        piConfigDir: "  /pi-reset  ",
+        language: "zh",
+      });
+    });
+
+    const settings = result.current.settings!;
+    expect(settings.showInTray).toBe(false);
+    expect(settings.minimizeToTrayOnClose).toBe(false);
+    expect(settings.enableClaudePluginIntegration).toBe(true);
+    expect(settings.claudeConfigDir).toBe("/reset");
+    expect(settings.codexConfigDir).toBeUndefined();
+    expect(settings.piConfigDir).toBe("/pi-reset");
+    expect(settings.language).toBe("zh");
+    expect(result.current.initialLanguage).toBe("en");
+    expect(changeLanguageSpy).toHaveBeenCalledWith("en");
+  });
+
+  it("should not call changeLanguage repeatedly when language is consistent in syncLanguage", async () => {
+    useSettingsQueryMock.mockReturnValue({
+      data: {
+        showInTray: true,
+        minimizeToTrayOnClose: true,
+        enableClaudePluginIntegration: false,
+        claudeConfigDir: null,
+        codexConfigDir: null,
+        language: "zh",
+      },
+      isLoading: false,
+    });
+
+    const { result } = renderHook(() => useSettingsForm());
+
+    await waitFor(() => {
+      expect(result.current.settings).not.toBeNull();
+    });
+
+    changeLanguageSpy.mockClear();
+    (i18n as any).language = "zh";
+
+    act(() => {
+      result.current.syncLanguage("zh");
+    });
+
+    expect(changeLanguageSpy).not.toHaveBeenCalled();
+  });
+});

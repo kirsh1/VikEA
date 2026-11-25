@@ -1,0 +1,15 @@
+load("//:defs.bzl", "codex_rust_crate")
+
+codex_rust_crate(
+    name = "core-plugins",
+    compile_data = glob(
+        include = ["**"],
+        allow_empty = True,
+        exclude = [
+            "**/* *",
+            "BUILD.bazel",
+            "Cargo.toml",
+        ],
+    ) + ["//codex-rs/plugin-archive-verification:testdata/plugin_archive_signing_v1.json"],
+    crate_name = "codex_core_plugins",
+)

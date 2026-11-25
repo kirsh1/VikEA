@@ -1,0 +1,143 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "anyOf": [
+    {
+      "$ref": "#/definitions/DynamicToolCallContentItems"
+    },
+    {
+      "properties": {
+        "structuredContent": true,
+        "success": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "structuredContent",
+        "success"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "errorMessage": {
+          "type": "string"
+        },
+        "success": {
+          "const": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "errorMessage",
+        "success"
+      ],
+      "type": "object"
+    }
+  ],
+  "definitions": {
+    "DynamicToolCallContentItems": {
+      "properties": {
+        "contentItems": {
+          "items": {
+            "$ref": "#/definitions/DynamicToolCallOutputContentItem"
+          },
+          "type": "array"
+        },
+        "success": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "contentItems",
+        "success"
+      ],
+      "type": "object"
+    },
+    "DynamicToolCallOutputContentItem": {
+      "oneOf": [
+        {
+          "properties": {
+            "text": {
+              "type": "string"
+            },
+            "type": {
+              "enum": [
+                "inputText"
+              ],
+              "title": "InputTextDynamicToolCallOutputContentItemType",
+              "type": "string"
+            }
+          },
+          "required": [
+            "text",
+            "type"
+          ],
+          "title": "InputTextDynamicToolCallOutputContentItem",
+          "type": "object"
+        },
+        {
+          "properties": {
+            "imageUrl": {
+              "type": "string"
+            },
+            "type": {
+              "enum": [
+                "inputImage"
+              ],
+              "title": "InputImageDynamicToolCallOutputContentItemType",
+              "type": "string"
+            }
+          },
+          "required": [
+            "imageUrl",
+            "type"
+          ],
+          "title": "InputImageDynamicToolCallOutputContentItem",
+          "type": "object"
+        },
+        {
+          "properties": {
+            "audioUrl": {
+              "type": "string"
+            },
+            "type": {
+              "enum": [
+                "inputAudio"
+              ],
+              "title": "InputAudioDynamicToolCallOutputContentItemType",
+              "type": "string"
+            }
+          },
+          "required": [
+            "audioUrl",
+            "type"
+          ],
+          "title": "InputAudioDynamicToolCallOutputContentItem",
+          "type": "object"
+        }
+      ]
+    }
+  },
+  "description": "A dynamic tool reply carrying content items, structured JSON, or an error message.",
+  "oneOf": [
+    {
+      "required": [
+        "contentItems"
+      ],
+      "title": "ContentItemsDynamicToolCallResponse"
+    },
+    {
+      "required": [
+        "structuredContent"
+      ],
+      "title": "StructuredContentDynamicToolCallResponse"
+    },
+    {
+      "required": [
+        "errorMessage"
+      ],
+      "title": "ErrorMessageDynamicToolCallResponse"
+    }
+  ],
+  "title": "DynamicToolCallResult"
+}

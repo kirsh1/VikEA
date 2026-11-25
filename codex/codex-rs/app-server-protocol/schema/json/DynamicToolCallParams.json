@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "DynamicToolResultFormat": {
+      "enum": [
+        "structuredContent"
+      ],
+      "type": "string"
+    }
+  },
+  "properties": {
+    "arguments": true,
+    "callId": {
+      "type": "string"
+    },
+    "namespace": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "supportedResultFormat": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/DynamicToolResultFormat"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Optional response format supported by the runtime serving this call."
+    },
+    "threadId": {
+      "type": "string"
+    },
+    "tool": {
+      "type": "string"
+    },
+    "turnId": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "arguments",
+    "callId",
+    "threadId",
+    "tool",
+    "turnId"
+  ],
+  "title": "DynamicToolCallParams",
+  "type": "object"
+}

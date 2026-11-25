@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="400" viewBox="0 0 640 400">
+  <rect width="640" height="400" fill="#21153E"/>
+  <circle cx="520" cy="320" r="264" fill="#E7BEFF" opacity=".06"/>
+  <svg x="28" y="24" width="24" height="24" viewBox="0 0 24 24"><path fill="#E7BEFF" d="M3 4h4l5 12 5-12h4l-7.5 16h-3L3 4Z"/></svg>
+  <text x="63" y="43" fill="#E7BEFF" font-family="Helvetica" font-size="20" font-weight="700">VikEA</text>
+  <text x="320" y="103" fill="white" font-family="Helvetica" font-size="22" text-anchor="middle">Drag VikEA into Applications.</text>
+  <path d="M270 202h96m-12-11 12 11-12 11" fill="none" stroke="#E7BEFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

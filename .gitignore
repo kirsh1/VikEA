@@ -1,0 +1,8 @@
+/.local/
+/HANDOFF.md
+/t3_cc_switch_research_codex_0_142_0.md
+**/node_modules/
+**/target/
+**/.env
+**/.env.local
+**/.env.*.local

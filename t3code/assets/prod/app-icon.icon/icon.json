@@ -1,0 +1,28 @@
+{
+  "fill": {
+    "solid": "srgb:0.06275,0.12941,0.20784,1.00000"
+  },
+  "groups": [
+    {
+      "layers": [
+        {
+          "image-name": "text.svg",
+          "name": "VikEA",
+          "position": {
+            "scale": 27,
+            "translation-in-points": [
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "supported-platforms": {
+    "circles": [
+      "watchOS"
+    ],
+    "squares": "shared"
+  }
+}

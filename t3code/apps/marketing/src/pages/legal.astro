@@ -1,0 +1,14 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { UPSTREAM_REPOSITORY_URL } from "../lib/site";
+---
+
+<Layout title="VikEA License and Attribution">
+  <h1>License and attribution</h1>
+  <p>VikEA is an unofficial fork of T3 Code, distributed under the MIT License. The original copyright notice remains with the source and desktop distribution.</p>
+  <p>The T3 Code name and trademarks belong to their respective owners. VikEA is independently maintained and has no affiliation with T3 Tools, Inc.</p>
+  <ul>
+    <li><a href={`${UPSTREAM_REPOSITORY_URL}/blob/main/LICENSE`}>Upstream MIT License</a></li>
+    <li><a href={`${UPSTREAM_REPOSITORY_URL}/blob/main/TRADEMARK.md`}>Upstream trademark policy</a></li>
+  </ul>
+</Layout>

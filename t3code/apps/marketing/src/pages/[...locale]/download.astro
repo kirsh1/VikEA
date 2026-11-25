@@ -1,0 +1,21 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { localeStaticPaths } from "../../i18n/locales";
+import { DESKTOP_DOWNLOAD_URL } from "../../lib/site";
+
+export const getStaticPaths = localeStaticPaths;
+
+const { locale } = Astro.props;
+const isChinese = locale === "zh-Hans";
+---
+
+<Layout title={isChinese ? "下载 VikEA" : "Download VikEA"} locale={locale} localizedPath="/download">
+  <h1>{isChinese ? "下载 VikEA" : "Download VikEA"}</h1>
+  {DESKTOP_DOWNLOAD_URL ? (
+    <a class="download" href={DESKTOP_DOWNLOAD_URL}>
+      {isChinese ? "下载桌面版" : "Download the desktop app"}
+    </a>
+  ) : (
+    <p>{isChinese ? "本站目前没有提供安装包。可使用源码仓库中的构建脚本生成安装包。" : "An installer is currently unavailable on this site. Use the build script in the source repository to create one."}</p>
+  )}
+</Layout>

@@ -1,0 +1,80 @@
+---
+import "@fontsource-variable/inter";
+import { type JsonLd, jsonLdGraph } from "../lib/seo";
+import { DEFAULT_LOCALE, LOCALES, type Locale, type LocalizedPath, localizedHref } from "../i18n/locales";
+
+interface Props {
+  title?: string;
+  description?: string;
+  pageClass?: string;
+  jsonLd?: ReadonlyArray<JsonLd>;
+  noindex?: boolean;
+  locale?: Locale;
+  localizedPath?: LocalizedPath;
+}
+
+const {
+  locale = DEFAULT_LOCALE,
+  localizedPath,
+  title = "VikEA",
+  description = "A desktop workspace for coding agents with CC Switch.",
+  pageClass,
+  jsonLd = [],
+  noindex = false,
+} = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const isChinese = locale === "zh-Hans";
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta property="og:site_name" content="VikEA" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    {localizedPath && LOCALES.map(({ code }) => (
+      <link rel="alternate" hreflang={code} href={new URL(localizedHref(code, localizedPath), Astro.site)} />
+    ))}
+    {jsonLd.length > 0 && <script type="application/ld+json" set:html={jsonLdGraph(jsonLd)} />}
+    <title>{title}</title>
+  </head>
+  <body class={pageClass}>
+    <header>
+      <a class="brand" href={localizedHref(locale, "/")}>
+        <img src="/favicon.svg" width="28" height="28" alt="" />
+        VikEA
+      </a>
+      <nav aria-label={isChinese ? "主导航" : "Main"}>
+        <a href={localizedHref(locale, "/download")}>{isChinese ? "下载" : "Download"}</a>
+        <a href="/legal">{isChinese ? "许可" : "License"}</a>
+      </nav>
+    </header>
+    <main><slot /></main>
+    <footer>
+      {isChinese
+        ? "VikEA 是基于 T3 Code 源代码的非官方衍生项目。"
+        : "VikEA is an unofficial fork based on the T3 Code source code."}
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  :root { color-scheme: dark; background: #101720; color: #f4f8f7; font-family: "Inter Variable", sans-serif; }
+  body { margin: auto; width: min(56rem, calc(100% - 3rem)); min-height: 100vh; display: flex; flex-direction: column; }
+  header, nav, .brand { display: flex; align-items: center; gap: 1.25rem; }
+  header { justify-content: space-between; flex-wrap: wrap; border-bottom: 1px solid #33414d; padding: 1.25rem 0; }
+  .brand { color: inherit; font-weight: 650; gap: .55rem; text-decoration: none; }
+  main { flex: 1; padding: clamp(3rem, 10vw, 8rem) 0; }
+  h1 { font-size: clamp(2.2rem, 8vw, 5rem); line-height: 1; letter-spacing: -.045em; margin: 0 0 .6em; }
+  p { max-width: 42rem; color: #bac8cb; line-height: 1.65; }
+  a { color: #8ee6c5; }
+  a:focus-visible { outline: 2px solid #8ee6c5; outline-offset: 3px; }
+  footer { border-top: 1px solid #33414d; color: #bac8cb; padding: 1.25rem 0; font-size: .87rem; }
+  .download { display: inline-block; margin-top: 1rem; padding: .7rem 1.1rem; border-radius: .45rem; background: #8ee6c5; color: #101720; font-weight: 650; text-decoration: none; }
+</style>

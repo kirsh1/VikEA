@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.relayworkbench.desktop</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <name>VikEA</name>
+  <summary>Desktop workspace for coding agents with CC Switch</summary>
+  <description>
+    <p>VikEA combines native Codex and models configured through CC Switch. It is an unofficial fork based on the T3 Code source code.</p>
+  </description>
+  <launchable type="desktop-id">vikea.desktop</launchable>
+  <categories><category>Development</category></categories>
+</component>
