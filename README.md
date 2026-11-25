@@ -72,3 +72,5 @@ VikEA 是一个桌面编码代理工作区。Windows 版内置原生 Codex 和 C
 | [OpenAI Codex](https://github.com/openai/codex) | 随 Windows 版内置的本地编码代理，[Apache-2.0 许可](codex/LICENSE)及 [NOTICE](codex/NOTICE) |
 
 感谢三个上游项目及其贡献者。VikEA 是独立维护的非官方衍生项目，品牌归属见 [TRADEMARK.md](t3code/TRADEMARK.md)。
+
+感谢 [Codex](https://github.com/codex) 协助实现和验证 VikEA 的 CC Switch 集成。
